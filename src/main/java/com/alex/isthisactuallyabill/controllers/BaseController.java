@@ -5,6 +5,7 @@ import com.alex.isthisactuallyabill.common.ResponseUtil;
 import com.alex.isthisactuallyabill.models.HealthPlanDetails;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
 import java.util.Map;
 
 public abstract class BaseController {
@@ -17,7 +18,7 @@ public abstract class BaseController {
      * @return A validation error message if a field is missing, or null if valid.
      */
     protected String validateFields(Map<String, Object> data, Iterable<String> requiredFields) {
-        return HelperFunctions.validateRequiredFields(data, requiredFields);
+        return HelperFunctions.validateRequiredFields(data, (List<String>) requiredFields);
     }
 
     /**
