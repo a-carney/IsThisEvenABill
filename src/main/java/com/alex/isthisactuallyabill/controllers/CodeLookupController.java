@@ -1,8 +1,8 @@
 package com.alex.isthisactuallyabill.controllers;
 
 import com.alex.isthisactuallyabill.common.ErrorMessages;
-import com.alex.isthisactuallyabill.common.HelperFunctions;
 import com.alex.isthisactuallyabill.common.ResponseUtil;
+import com.alex.isthisactuallyabill.services.CodeLookupService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,23 +14,24 @@ import java.util.Map;
 @RestController
 class CodeLookupController {
 
+    private final CodeLookupService codeLookupService;
+
+    public CodeLookupController(CodeLookupService codeLookupService) {
+        this.codeLookupService = codeLookupService;
+    }
+
     @GetMapping("/codes/lookup")
-    public ResponseEntity<Object> lookupCode(@RequestParam String codeType, @RequestParam String code) {
+    public ResponseEntity<Object> lookupCode(@RequestParam(required = true) String codeType,
+                                             @RequestParam(required = true) String code) {
         try {
-            if (codeType == null || code == null) {
-                return ResponseUtil.errorResponse(ErrorMessages.INVALID_INPUT.getMessage());
-            }
+            // Perform the lookup using CodeLookupService
+            Map<String, Object> thirdPartyData = codeLookupService.lookupCode(codeType, code);
 
-            Map<String, String> params = new HashMap<>();
-            params.put("code_type", codeType);
-            params.put("code", code);
-
-            Map<String, Object> thirdPartyData = HelperFunctions.makeApiRequest(AppConfig.THIRD_PARTY_API_URL, params);
-
-            if (thirdPartyData == null) {
+            if (thirdPartyData == null || thirdPartyData.isEmpty()) {
                 return ResponseUtil.errorResponse(ErrorMessages.LOOKUP_FAILED.getMessage());
             }
 
+            // Prepare the response
             Map<String, Object> response = new HashMap<>();
             response.put("code", code);
             response.put("description", thirdPartyData.getOrDefault("description", "No description available"));
