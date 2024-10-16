@@ -1,16 +1,13 @@
 package com.alex.isthisactuallyabill.models;
 
-// Model Classes
-class HealthPlanDetails {
+public class HealthPlanDetails {
+
     private Double deductible;
     private Double copay;
     private Double coinsurance;
     private Double outOfPocketMax;
 
-    // Constructors
-    public HealthPlanDetails() {
-    }
-
+    // Constructor
     public HealthPlanDetails(Double deductible, Double copay, Double coinsurance, Double outOfPocketMax) {
         this.deductible = deductible;
         this.copay = copay;

@@ -1,65 +1,66 @@
 package com.alex.isthisactuallyabill.controllers;
 
+import com.alex.isthisactuallyabill.models.HealthPlanDetails;
+import com.alex.isthisactuallyabill.models.TreatmentCostEstimate;
+import com.alex.isthisactuallyabill.services.tce.TCEService;
+import com.alex.isthisactuallyabill.services.tce.TCEException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// Controllers
 @RestController
-class TreatmentCostEstimatorController {
+public class TreatmentCostEstimatorController extends BaseController {
 
-    private static final List<String> REQUIRED_FIELDS = Arrays.asList("cptCode", "icd10Code", "npiCode", "healthPlanDetails");
+    private final TCEService tceService;
+    private static final List<String> REQUIRED_FIELDS = List.of("cptCode", "icd10Code", "npiCode", "zipCode", "healthPlanDetails");
+
+    public TreatmentCostEstimatorController(TCEService tceService) {
+        this.tceService = tceService;
+    }
 
     @PostMapping("/tce/estimate")
     public ResponseEntity<Object> estimate(@RequestBody Map<String, Object> data) {
         try {
-            String error = HelperFunctions.validateRequiredFields(data, REQUIRED_FIELDS);
+            // Validate required fields
+            String error = validateFields(data, REQUIRED_FIELDS);
             if (error != null) {
-                return ResponseUtil.errorResponse(error);
+                return createErrorResponse(error);
             }
 
             // Map data to TreatmentCostEstimate model
             TreatmentCostEstimate estimate = mapToTreatmentCostEstimate(data);
 
-            // Process estimation logic (placeholder)
-            Double estimatedCost = 100.0;
-            Map<String, Object> costBreakdown = new HashMap<>();
-            costBreakdown.put("details", "Cost breakdown details here");
+            // Call TCEService to get the cost estimate
+            String estimatedCost;
+            try {
+                estimatedCost = tceService.calculateTotalCostEstimate(estimate.getCptCode(), estimate.getZipCode(), estimate.getNpiCode());
+            } catch (TCEException e) {
+                return createErrorResponse("Failed to calculate the cost estimate: " + e.getMessage());
+            }
 
+            // Prepare and return the response
             Map<String, Object> response = new HashMap<>();
             response.put("estimatedCost", estimatedCost);
-            response.put("costBreakdown", costBreakdown);
+            return createSuccessResponse(response);
 
-            return ResponseUtil.successResponse(response);
         } catch (Exception e) {
-            return ResponseUtil.serverErrorResponse(e);
+            return createServerErrorResponse(e);
         }
     }
 
+    // Map request data to TreatmentCostEstimate
     private TreatmentCostEstimate mapToTreatmentCostEstimate(Map<String, Object> data) {
         String cptCode = (String) data.get("cptCode");
         String icd10Code = (String) data.get("icd10Code");
         String npiCode = (String) data.get("npiCode");
-        Map<String, Object> healthPlanDetailsMap = (Map<String, Object>) data.get("healthPlanDetails");
-        HealthPlanDetails healthPlanDetails = mapToHealthPlanDetails(healthPlanDetailsMap);
+        String zipCode = (String) data.get("zipCode");
+        HealthPlanDetails healthPlanDetails = mapToHealthPlanDetails((Map<String, Object>) data.get("healthPlanDetails"));
 
-        return new TreatmentCostEstimate(cptCode, icd10Code, npiCode, healthPlanDetails);
-    }
-
-    private HealthPlanDetails mapToHealthPlanDetails(Map<String, Object> data) {
-        if (data == null) {
-            return null;
-        }
-        Double deductible = data.get("deductible") != null ? Double.valueOf(data.get("deductible").toString()) : null;
-        Double copay = data.get("copay") != null ? Double.valueOf(data.get("copay").toString()) : null;
-        Double coinsurance = data.get("coinsurance") != null ? Double.valueOf(data.get("coinsurance").toString()) : null;
-        Double outOfPocketMax = data.get("out_of_pocket_max") != null ? Double.valueOf(data.get("out_of_pocket_max").toString()) : null;
-        return new HealthPlanDetails(deductible, copay, coinsurance, outOfPocketMax);
+        return new TreatmentCostEstimate(cptCode, icd10Code, npiCode, zipCode, healthPlanDetails);
     }
 }

@@ -4,7 +4,7 @@ import lombok.Getter;
 
 // Enums for Error Messages
 @Getter
-enum ErrorMessages {
+public enum ErrorMessages {
     INVALID_INPUT("Invalid input data"),
     LOOKUP_FAILED("Failed to lookup code"),
     MISSING_FIELDS("Missing required fields: %s");

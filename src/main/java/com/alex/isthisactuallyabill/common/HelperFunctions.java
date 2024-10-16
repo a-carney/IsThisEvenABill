@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 // Helper Functions
-class HelperFunctions {
+public class HelperFunctions {
     public static String validateRequiredFields(Map<String, Object> data, List<String> requiredFields) {
         List<String> missingFields = new ArrayList<>();
         for (String field : requiredFields) {
