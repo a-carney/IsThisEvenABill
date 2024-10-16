@@ -1,4 +1,4 @@
-package com.alex.isthisactuallyabill.contollers;
+package com.alex.isthisactuallyabill.controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
