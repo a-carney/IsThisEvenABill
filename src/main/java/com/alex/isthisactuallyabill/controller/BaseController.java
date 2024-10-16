@@ -1,4 +1,4 @@
-package com.alex.isthisactuallyabill.controllers;
+package com.alex.isthisactuallyabill.controller;
 
 import com.alex.isthisactuallyabill.models.HealthPlanDetails;
 import com.alex.isthisactuallyabill.services.validation.ValidationService;
@@ -16,6 +16,9 @@ public abstract class BaseController {
     @Autowired
     public BaseController(ValidationService validationService) {
         this.validationService = validationService;
+    }
+
+    protected BaseController() {
     }
 
     protected String validateFields(Map<String, Object> data, Iterable<String> requiredFields) {

@@ -17,10 +17,6 @@ public class NPILookupService extends AbstractLookupService implements LookupSer
     @Override
     @Cacheable(value = "npiCodes", key = "#code")
     public String lookupCode(String code) throws LookupException {
-        String response = makeApiCall(API_EXTERNAL + "?number=" + code);
-        if (response == null || response.isEmpty()) {
-            throw new LookupException("NPI code lookup failed for code: " + code);
-        }
-        return response;
+        return performLookup(API_EXTERNAL + "?number=" + code);
     }
 }

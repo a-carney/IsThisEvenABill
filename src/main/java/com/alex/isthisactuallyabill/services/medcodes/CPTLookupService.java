@@ -10,13 +10,13 @@ public class CPTLookupService extends AbstractLookupService implements LookupSer
     @Value("${api.cpt-url}")
     private String urlApi;
 
+    protected CPTLookupService(String apiUrl) {
+        super(apiUrl);
+    }
+
     @Override
     @Cacheable(value = "cptCodes", key = "#code")
     public String lookupCode(String code) throws LookupException {
-        String response = makeApiCall(urlApi + "?code=" + code);
-        if (response == null || response.isEmpty()) {
-            throw new LookupException("CPT code lookup failed for code: " + code);
-        }
-        return response;
+        return performLookup(urlApi + "?code=" + code);
     }
 }

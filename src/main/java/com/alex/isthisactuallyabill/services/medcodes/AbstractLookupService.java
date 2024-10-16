@@ -38,4 +38,12 @@ public abstract class AbstractLookupService {
             throw new LookupException("Error occurred while making API call to: " + url, e);
         }
     }
+
+    protected String performLookup(String url) throws LookupException {
+        try {
+            return makeApiCall(url);
+        } catch (Exception e) {
+            throw new LookupException("Lookup failed for URL: " + url, e);
+        }
+    }
 }

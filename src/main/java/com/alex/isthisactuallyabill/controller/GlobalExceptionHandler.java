@@ -1,4 +1,4 @@
-package com.alex.isthisactuallyabill.exception;
+package com.alex.isthisactuallyabill.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,3 +40,4 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
+

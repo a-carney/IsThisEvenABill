@@ -23,8 +23,11 @@ public class TCEService {
      * @throws TCEException if cost estimation fails
      */
     public String calculateTotalCostEstimate(String cptCode, String zipCode, String npi) throws TCEException {
-        // For now, only Medicare cost is considered
-        String medicareEstimate = medicareCostEstimator.estimateCost(cptCode, zipCode);
-        return "Total Cost Estimate (Medicare): " + medicareEstimate;
+        try {
+            String medicareEstimate = medicareCostEstimator.estimateCost(cptCode, zipCode);
+            return "Total Cost Estimate (Medicare): " + medicareEstimate;
+        } catch (Exception e) {
+            throw new TCEException("Failed to calculate total cost estimate", e);
+        }
     }
 }

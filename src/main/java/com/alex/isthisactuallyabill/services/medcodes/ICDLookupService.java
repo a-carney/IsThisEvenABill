@@ -17,10 +17,6 @@ public class ICDLookupService extends AbstractLookupService implements LookupSer
     @Override
     @Cacheable(value = "icdCodes", key = "#code")
     public String lookupCode(String code) throws LookupException {
-        String response = makeApiCall(API_EXTERNAL + "?terms=" + code);
-        if (response == null || response.isEmpty()) {
-            throw new LookupException("ICD-10 code lookup failed for code: " + code);
-        }
-        return response;
+        return performLookup(API_EXTERNAL + "?terms=" + code);
     }
 }
