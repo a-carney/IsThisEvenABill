@@ -2,10 +2,10 @@ package com.alex.isthisactuallyabill.models;
 
 public class HealthPlanDetails {
 
-    private Double deductible;
-    private Double copay;
-    private Double coinsurance;
-    private Double outOfPocketMax;
+    private final Double deductible;
+    private final Double copay;
+    private final Double coinsurance;
+    private final Double outOfPocketMax;
 
     // Constructor
     public HealthPlanDetails(Double deductible, Double copay, Double coinsurance, Double outOfPocketMax) {
@@ -15,36 +15,21 @@ public class HealthPlanDetails {
         this.outOfPocketMax = outOfPocketMax;
     }
 
-    // Getters and Setters
+    // Getters
+
     public Double getDeductible() {
         return deductible;
-    }
-
-    public void setDeductible(Double deductible) {
-        this.deductible = deductible;
     }
 
     public Double getCopay() {
         return copay;
     }
 
-    public void setCopay(Double copay) {
-        this.copay = copay;
-    }
-
     public Double getCoinsurance() {
         return coinsurance;
     }
 
-    public void setCoinsurance(Double coinsurance) {
-        this.coinsurance = coinsurance;
-    }
-
     public Double getOutOfPocketMax() {
         return outOfPocketMax;
-    }
-
-    public void setOutOfPocketMax(Double outOfPocketMax) {
-        this.outOfPocketMax = outOfPocketMax;
     }
 }

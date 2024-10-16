@@ -1,7 +1,7 @@
 package com.alex.isthisactuallyabill.models;
 
 // Base class for medical requests
-abstract class MedicalRequest {
+public abstract class MedicalRequest {
     protected String cptCode;
     protected String icd10Code;
     protected String npiCode;

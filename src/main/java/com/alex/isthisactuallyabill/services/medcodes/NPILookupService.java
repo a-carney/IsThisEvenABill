@@ -1,19 +1,26 @@
 package com.alex.isthisactuallyabill.services.medcodes;
 
-import com.alex.isthisactuallyabill.services.AbstractLookupService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
-class NPILookupService extends AbstractLookupService {
+public class NPILookupService extends AbstractLookupService implements LookupService {
 
-    public NPILookupService() {
-        super("https://npiregistry.cms.hhs.gov/api/");
+    @Value("${api.npi-url}")
+    private String apiUrl;
+
+    public NPILookupService(@Value("${api.npi-url}") String apiUrl) {
+        super(apiUrl);
     }
 
     @Override
-    public String lookupCode(String code) {
-        String url = API_EXTERNAL + "?number=" + code;
-        return makeApiCall(url);
+    @Cacheable(value = "npiCodes", key = "#code")
+    public String lookupCode(String code) throws LookupException {
+        String response = makeApiCall(API_EXTERNAL + "?number=" + code);
+        if (response == null || response.isEmpty()) {
+            throw new LookupException("NPI code lookup failed for code: " + code);
+        }
+        return response;
     }
-
 }

@@ -1,17 +1,22 @@
 package com.alex.isthisactuallyabill.services.medcodes;
 
-import com.alex.isthisactuallyabill.services.AbstractLookupService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
 
-public class CPTLookupService extends AbstractLookupService {
+@Service
+public class CPTLookupService extends AbstractLookupService implements LookupService {
 
-
-    public CPTLookupService(String apiUrl) {
-        super("https://developer.cms.gov/api/cpt");
-    }
+    @Value("${api.cpt-url}")
+    private String urlApi;
 
     @Override
-    public String lookupCode(String code) {
-        return makeApiCall(API_EXTERNAL + "?code=" + code);
+    @Cacheable(value = "cptCodes", key = "#code")
+    public String lookupCode(String code) throws LookupException {
+        String response = makeApiCall(urlApi + "?code=" + code);
+        if (response == null || response.isEmpty()) {
+            throw new LookupException("CPT code lookup failed for code: " + code);
+        }
+        return response;
     }
 }
-

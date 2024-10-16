@@ -1,5 +1,6 @@
 package com.alex.isthisactuallyabill.services.tce;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -7,6 +8,7 @@ public class MedicareCostEstimator {
 
     private final CMSApiClient cmsApiClient;
 
+    @Autowired
     public MedicareCostEstimator(CMSApiClient cmsApiClient) {
         this.cmsApiClient = cmsApiClient;
     }
