@@ -28,26 +28,26 @@ class CPTLookupServiceTest {
     }
 
     @Test
-    void testLookupCodeSuccess() throws LookupException {
+    void testFetchFromAPISuccess() throws LookupException {
         String code = "99213";
         String expectedResponse = "{\"code\":\"99213\",\"description\":\"Office visit\"}";
 
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
                 .thenReturn(new ResponseEntity<>(expectedResponse, HttpStatus.OK));
 
-        String actualResponse = cptLookupService.lookupCode(code);
+        String actualResponse = cptLookupService.fetchFromAPI(code, headers);
         assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
-    void testLookupCodeFailure() {
+    void testFetchFromAPIFailure() {
         String code = "INVALID_CODE";
 
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
                 .thenThrow(new RestClientException("API Error"));
 
         LookupException exception = assertThrows(LookupException.class, () -> {
-            cptLookupService.lookupCode(code);
+            cptLookupService.fetchFromAPI(code, headers);
         });
 
         assertTrue(exception.getMessage().contains("Error occurred while making API call"));

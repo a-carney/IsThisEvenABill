@@ -2,6 +2,7 @@ package com.alex.isthisevenabill.services.medcodes;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,7 +24,7 @@ public class CPTLookupService extends AbstractLookupService implements LookupSer
 
     @Override
     @Cacheable(value = "cptCodes", key = "#code")
-    public String lookupCode(String code) throws LookupException {
+    public String fetchFromAPI(String code, HttpHeaders headers) throws LookupException {
         return performLookup(urlApi + "?code=" + code);
     }
 }

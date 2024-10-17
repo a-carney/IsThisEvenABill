@@ -1,11 +1,7 @@
 package com.alex.isthisevenabill.services.medcodes;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -14,36 +10,27 @@ public abstract class AbstractLookupService {
     protected RestTemplate restTemplate;
     protected String API_EXTERNAL;
 
+    public static final String CONTENT_TYPE = "Content-Type";
+    public static final String APPLICATION_JSON = "application/json";
+
+
     protected AbstractLookupService(String apiUrl) {
         this.API_EXTERNAL = apiUrl;
         this.restTemplate = new RestTemplate();
     }
 
-    public abstract String lookupCode(String code) throws LookupException;
-
-    protected HttpHeaders getCommonHeaders() {
+    public final String lookup(String code) throws LookupException {
+        check(code);
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-        // Add any common headers here, e.g., API key, Authorization token
-        // headers.set("Authorization", "Bearer <token>");
-        return headers;
+        String rsp = fetchFromAPI(code, headers);
+        return parse(rsp);
+
     }
 
-    protected String makeApiCall(String url) throws LookupException {
-        try {
-            HttpEntity<String> entity = new HttpEntity<>(getCommonHeaders());
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-            return response.getBody();
-        } catch (RestClientException e) {
-            throw new LookupException("Error occurred while making API call to: " + url, e);
-        }
-    }
+    protected abstract String parse(String rsp);
 
-    protected String performLookup(String url) throws LookupException {
-        try {
-            return makeApiCall(url);
-        } catch (Exception e) {
-            throw new LookupException("Lookup failed for URL: " + url, e);
-        }
-    }
+    protected abstract void check(String code);
+
+    public abstract String fetchFromAPI(String code, HttpHeaders headers) throws LookupException;
+
 }

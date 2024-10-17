@@ -2,6 +2,7 @@ package com.alex.isthisevenabill.services.medcodes;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -9,6 +10,7 @@ public class NPILookupService extends AbstractLookupService implements LookupSer
 
     @Value("${api.npi-url}")
     private String apiUrl;
+
 
 /*
     `           WHAT IS AN NPI CODE?
@@ -20,9 +22,4 @@ public class NPILookupService extends AbstractLookupService implements LookupSer
         super(apiUrl);
     }
 
-    @Override
-    @Cacheable(value = "npiCodes", key = "#code")
-    public String lookupCode(String code) throws LookupException {
-        return performLookup(API_EXTERNAL + "?number=" + code);
-    }
 }
