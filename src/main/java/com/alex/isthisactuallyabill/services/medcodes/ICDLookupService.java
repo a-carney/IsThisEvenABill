@@ -10,6 +10,11 @@ public class ICDLookupService extends AbstractLookupService implements LookupSer
     @Value("${api.icd-url}")
     private String icdUrl;
 
+/*
+    `           WHAT IS AN ICD-10 CODE?
+        ICD, or International Classification of Diseases, are used in medical billing to described a diagnosis with a CPT code
+ */
+
     public ICDLookupService(@Value("${api.icd-url}") String apiUrl) {
         super(apiUrl);
     }

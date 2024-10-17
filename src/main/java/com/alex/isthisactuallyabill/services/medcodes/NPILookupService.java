@@ -10,6 +10,12 @@ public class NPILookupService extends AbstractLookupService implements LookupSer
     @Value("${api.npi-url}")
     private String apiUrl;
 
+/*
+    `           WHAT IS AN NPI CODE?
+        NPI, or National Provider Indentifier, is used to represent a person place or thing in a medical claim (i.e. doctor or office)
+
+ */
+
     public NPILookupService(@Value("${api.npi-url}") String apiUrl) {
         super(apiUrl);
     }
