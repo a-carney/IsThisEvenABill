@@ -2,9 +2,9 @@
 
 ## Project Vision
 
-"Is This Even A Bill?" -- Many Americans have found themselves asking this along with many other frustrating questions about their healthcare bills. Even worse, those that try to think ahead and predict costs are usually met with nothing but angry customer service representatives.
+"Is This Even A Bill?" -- Many Americans have found themselves asking this along with many other frustrating questions about their healthcare bills. Even worse, those that try to think ahead and predict costs are usually met with nothing but frustration.
 
-This project aims to change that. "Is This Even A Bill?" is a Spring Boot application that helps users determine if a provided statement is actually a valid bill or invoice. It leverages Spring Boot to provide an API for parsing, analyzing, and verifying documents using predefined rules and logic. The project plans to use freely available third-party data, such as NPT, CPT, and ICD-10 codes, and implement an algorithm to predict costs based on publicly available Medicare rates.
+This project aims to help mitigate that frustration. "Is This Even A Bill?" is an in-progress application that aims to assist with predicting treatment costs and verifying insurance bills for rendered services. It leverages Spring Boot to provide an API for parsing, analyzing, and verifying documents using predefined rules and logic. The project plans to use freely available third-party data, such as NPT, CPT, and ICD-10 codes, and implement an algorithm to predict costs based on publicly available Medicare rates.
 
 ### Current Status
 
