@@ -24,7 +24,7 @@ public class CPTLookupService extends AbstractLookupService implements LookupSer
 
     @Override
     @Cacheable(value = "cptCodes", key = "#code")
-    public String fetchFromAPI(String code, HttpHeaders headers) throws LookupException {
+    public String send(String code, HttpHeaders headers) throws LookupException {
         return performLookup(urlApi + "?code=" + code);
     }
 }

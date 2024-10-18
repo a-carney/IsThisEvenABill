@@ -22,7 +22,7 @@ public class ICDLookupService extends AbstractLookupService implements LookupSer
 
     @Override
     @Cacheable(value = "icdCodes", key = "#code")
-    public String fetchFromAPI(String code, HttpHeaders headers) throws LookupException {
+    public String send(String code, HttpHeaders headers) throws LookupException {
         return performLookup(API_EXTERNAL + "?terms=" + code);
     }
 }

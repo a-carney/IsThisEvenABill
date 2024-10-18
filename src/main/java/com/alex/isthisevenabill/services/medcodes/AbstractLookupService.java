@@ -19,18 +19,20 @@ public abstract class AbstractLookupService {
         this.restTemplate = new RestTemplate();
     }
 
-    public final String lookup(String code) throws LookupException {
+    protected String execute(String code) throws LookupException {
         check(code);
-        HttpHeaders headers = new HttpHeaders();
-        String rsp = fetchFromAPI(code, headers);
-        return parse(rsp);
+        HttpHeaders headers = getHeaders();
+        String rsp = send(code, headers);
+        return process(rsp);
 
     }
 
-    protected abstract String parse(String rsp);
+    protected abstract HttpHeaders getHeaders();
 
-    protected abstract void check(String code);
+    protected abstract String process(String rsp);
 
-    public abstract String fetchFromAPI(String code, HttpHeaders headers) throws LookupException;
+    protected abstract void check(String code) throws LookupException;
+
+    public abstract String send(String code, HttpHeaders headers) throws LookupException;
 
 }
