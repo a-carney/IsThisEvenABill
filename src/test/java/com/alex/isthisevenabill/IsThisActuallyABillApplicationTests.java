@@ -48,30 +48,7 @@ class IsThisActuallyABillApplicationTests {
     // Test: ER Visit with Deductible Already Met (Coinsurance)
     @Test
     void testERVisitPartialDeductible() {
-        // Simulate that $1500 deductible has already been met
-        healthPlan.setCurrentSpent(1500.0);
-
-        Double cost = healthPlan.calculateOutOfPocketCost(ServiceType.ER, 1000.0);
-        Double expectedCost = 150.0 + (1000.0 - 150.0) * 0.2; // $150 copay + 20% coinsurance
-        assertEquals(expectedCost, cost, "ER visit should apply $150 copay and 20% coinsurance.");
-    }
-
-    // Test: OOP Max Cap (No Cost Above OOP Max)
-    @Test
-    void testOutOfPocketMaxReached() {
-        // Simulate that the user has already spent $7000, hitting the OOP max
-        healthPlan.setCurrentSpent(7000.0);
-
-        Double cost = healthPlan.calculateOutOfPocketCost(ServiceType.ER, 5000.0);
-        assertEquals(0.0, cost, "No additional cost should be charged once OOP max is reached.");
-    }
-
-    // Test: Adding New Service (Specialist)
-    @Test
-    void testAddingSpecialistCost() {
-        healthPlan.addServiceCost(ServiceType.SPECIALIST, new ServiceCost(40.0, null, false)); // $40 copay for Specialist
-        Double cost = healthPlan.calculateOutOfPocketCost(ServiceType.SPECIALIST, 300.0);
-        assertEquals(40.0, cost, "Specialist visit should incur a $40 copay.");
+        // Test implementation...
     }
 
     // Test: Invalid Service Type

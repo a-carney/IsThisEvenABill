@@ -1,23 +1,25 @@
 package com.alex.isthisevenabill.controller;
 
+import com.alex.isthisevenabill.dto.TreatmentCostEstimateRequest;
+import com.alex.isthisevenabill.dto.TreatmentCostEstimateResponse;
 import com.alex.isthisevenabill.services.tce.TCEService;
 import com.alex.isthisevenabill.services.validation.ValidationService;
+import com.alex.isthisevenabill.exceptions.TCEException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @Validated
 @RequestMapping("/healthplan")
 public class HealthPlanController extends BaseController {
 
+    private static final Logger logger = LoggerFactory.getLogger(HealthPlanController.class);
     private final TCEService tceService;
-    private static final List<String> REQUIRED_FIELDS = List.of("cptCode", "icd10Code", "npiCode", "zipCode", "healthPlanDetails");
 
     public HealthPlanController(TCEService tceService, ValidationService validationService) {
         super(validationService);
@@ -25,24 +27,20 @@ public class HealthPlanController extends BaseController {
     }
 
     @PostMapping("/tce/estimate")
-    public ResponseEntity<Object> estimate(@RequestBody Map<String, Object> data) {
-        String error = validateFields(data, REQUIRED_FIELDS);
-        if (error != null) {
-            return ResponseUtil.errorResponse(error);
-        }
-
-        TreatmentCostEstimate estimate = mapToTreatmentCostEstimate(data);
-        String estimatedCost = calculateEstimatedCost(estimate);
-        Map<String, Object> response = new HashMap<>();
-        response.put("estimatedCost", estimatedCost);
-        return ResponseUtil.successResponse(response);
-    }
-
-    private String calculateEstimatedCost(TreatmentCostEstimate estimate) {
+    public ResponseEntity<TreatmentCostEstimateResponse> estimate(@Valid @RequestBody TreatmentCostEstimateRequest request) {
+        logger.info("Received treatment cost estimate request for CPT code: {}", request.getCptCode());
         try {
-            return tceService.calculateTotalCostEstimate(estimate.getCptCode(), estimate.getZipCode(), estimate.getNpiCode());
+            String estimatedCost = tceService.calculateTotalCostEstimate(
+                request.getCptCode(),
+                request.getZipCode(),
+                request.getNpiCode(),
+                request.getHealthPlanDetails()
+            );
+            logger.info("Calculated estimated cost: {}", estimatedCost);
+            return ResponseEntity.ok(new TreatmentCostEstimateResponse(estimatedCost));
         } catch (TCEException e) {
-            throw new RuntimeException("Failed to calculate the cost estimate: " + e.getMessage());
+            logger.error("Failed to calculate cost estimate", e);
+            return ResponseEntity.badRequest().body(new TreatmentCostEstimateResponse("Failed to calculate the cost estimate: " + e.getMessage()));
         }
     }
 

@@ -11,4 +11,3 @@ public class EOBAnalysis extends MedicalRequest {
         this.billedAmount = billedAmount;
     }
 }
-
