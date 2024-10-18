@@ -1,6 +1,7 @@
 package com.alex.isthisevenabill.view;
 
 import com.alex.isthisevenabill.common.ErrorMessages;
+import com.alex.isthisevenabill.services.CodeLookupService;
 import com.alex.isthisevenabill.utils.ResponseUtil;
 import com.alex.isthisevenabill.service.CodeLookupService;
 import org.springframework.http.ResponseEntity;
@@ -14,17 +15,16 @@ import java.util.Map;
 @RestController
 class CodeLookupController {
 
-    private final CodeLookupService codeLookupService;
-
-    public CodeLookupController(CodeLookupService codeLookupService) {
-        this.codeLookupService = codeLookupService;
+    private final CodeLookupService service;
+    public CodeLookupController(CodeLookupService service) {
+        this.service = service;
     }
 
     @GetMapping("/codes/lookup")
     public ResponseEntity<Object> lookupCode(@RequestParam(required = true) String codeType,
                                              @RequestParam(required = true) String code) {
         try {
-            Map<String, Object> thirdPartyData = codeLookupService.lookupCode(codeType, code);
+            Map<String, Object> thirdPartyData = service.lookupCode(codeType, code);
 
             if (thirdPartyData == null || thirdPartyData.isEmpty()) {
                 return ResponseUtil.errorResponse(ErrorMessages.LOOKUP_FAILED.getMessage());
