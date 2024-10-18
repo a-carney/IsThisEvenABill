@@ -1,38 +1,34 @@
 package com.alex.isthisevenabill.services.medcodes;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-@Service
-public abstract class AbstractLookupService {
+public abstract class AbstractLookupService implements LookupService {
 
-    protected RestTemplate restTemplate;
-    protected String API_EXTERNAL;
+    protected static final String CONTENT_TYPE = "Content-Type";
+    protected static final String APPLICATION_JSON = "application/json";
 
-    public static final String CONTENT_TYPE = "Content-Type";
-    public static final String APPLICATION_JSON = "application/json";
+    protected final String apiUrl;
+    protected final RestTemplate restTemplate;
 
-
-    protected AbstractLookupService(String apiUrl) {
-        this.API_EXTERNAL = apiUrl;
+    public AbstractLookupService(String apiUrl) {
+        this.apiUrl = apiUrl;
         this.restTemplate = new RestTemplate();
     }
 
-    protected String execute(String code) throws LookupException {
+    @Override
+    public String execute(String code) throws LookupException {
         check(code);
         HttpHeaders headers = getHeaders();
-        String rsp = send(code, headers);
-        return process(rsp);
-
+        String response = send(code, headers);
+        return process(response);
     }
 
-    protected abstract HttpHeaders getHeaders();
+    public abstract HttpHeaders getHeaders();
 
-    protected abstract String process(String rsp);
+    public abstract String process(String response);
 
-    protected abstract void check(String code) throws LookupException;
+    public abstract void check(String code) throws LookupException;
 
     public abstract String send(String code, HttpHeaders headers) throws LookupException;
-
 }
