@@ -23,6 +23,52 @@ public class ICDLookupService extends AbstractLookupService implements LookupSer
     @Override
     @Cacheable(value = "icdCodes", key = "#code")
     public String send(String code, HttpHeaders headers) throws LookupException {
-        return performLookup(API_EXTERNAL + "?terms=" + code);
+        check(code);
+        try {
+            String url = UriComponentsBuilder.fromHttpUrl(icdUrl)
+                    .queryParam("sf", "code")
+                    .queryParam("terms", code)
+                    .toUriString();
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+            return process(response.getBody());
+        } catch (RestClientException e) {
+            throw new LookupException("Error fetching data from API with ICD code: " + code, e);
+        }
+    }
+
+    @Override
+    protected String process(String rsp) {
+        if (rsp == null || rsp.isEmpty()) {
+            return "{\"error\": \"empty response from API\"}";
+        }
+        // Here you can parse the response as needed
+        return rsp; // Placeholder return
+    }
+
+    @Override
+    protected void check(String code) throws LookupException {
+        if (code == null || code.isEmpty()) {
+            throw new LookupException("Invalid input - ICD code cannot be null or empty");
+        }
+    }
+
+    @Override
+    public HttpHeaders getHeaders() {
+        HttpHeaders hdrs = new HttpHeaders();
+        hdrs.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        return hdrs;
+    }
+
+    @Override
+    public String getDescription() {
+        return "ICD-10 Code Lookup Service";
+    }
+
+    @Override
+    public String getApiEndpoint() {
+        return icdUrl;
     }
 }
