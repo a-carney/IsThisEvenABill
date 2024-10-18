@@ -3,6 +3,7 @@ package com.alex.isthisevenabill.controller;
 import com.alex.isthisevenabill.common.ErrorMessages;
 import com.alex.isthisevenabill.utils.ResponseUtil;
 import com.alex.isthisevenabill.services.CodeLookupService;
+import com.alex.isthisevenabill.services.medcodes.LookupException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,20 +23,23 @@ class CodeLookupController {
 
     @GetMapping("/codes/lookup")
     public ResponseEntity<Object> lookupCode(@RequestParam String codeType, @RequestParam String code) {
-        Map<String, Object> thirdPartyData = codeLookupService.lookupCode(codeType, code);
-        if (thirdPartyData == null || thirdPartyData.isEmpty()) {
-            return ResponseUtil.errorResponse(ErrorMessages.LOOKUP_FAILED.getMessage());
+        try {
+            String result = codeLookupService.lookupCode(codeType, code);
+            Map<String, Object> response = createResponse(code, result);
+            return ResponseUtil.successResponse(response);
+        } catch (LookupException e) {
+            return ResponseUtil.errorResponse(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseUtil.errorResponse("Invalid code type: " + codeType);
+        } catch (Exception e) {
+            return ResponseUtil.serverErrorResponse(e);
         }
-
-        Map<String, Object> response = createResponse(code, thirdPartyData);
-        return ResponseUtil.successResponse(response);
     }
 
-    private Map<String, Object> createResponse(String code, Map<String, Object> thirdPartyData) {
+    private Map<String, Object> createResponse(String code, String result) {
         Map<String, Object> response = new HashMap<>();
         response.put("code", code);
-        response.put("description", thirdPartyData.getOrDefault("description", "No description available"));
-        response.put("additionalInfo", thirdPartyData.getOrDefault("additional_info", new HashMap<>()));
+        response.put("result", result);
         return response;
     }
 }

@@ -8,23 +8,36 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.http.MediaType;
 
 @Service
-public class NPILookupService extends AbstractLookupService implements LookupService {
+public class NPILookupService implements LookupService {
 
-    public NPILookupService(@Value("${api.npi-url}") String apiUrl) {
-        super(apiUrl);
+    private final String apiUrl;
+    private final RestTemplate restTemplate;
+
+    public NPILookupService(@Value("${api.npi-url}") String apiUrl, RestTemplate restTemplate) {
+        this.apiUrl = apiUrl;
+        this.restTemplate = restTemplate;
     }
 
     @Override
-    protected HttpHeaders getHeaders() {
-        HttpHeaders hdrs = new HttpHeaders();
-        hdrs.set(CONTENT_TYPE, APPLICATION_JSON);
-        return hdrs;
+    public String lookup(String code) throws LookupException {
+        check(code);
+        try {
+            String url = UriComponentsBuilder.fromHttpUrl(apiUrl)
+                .queryParam("number", code)
+                .toUriString();
+            HttpEntity<String> entity = new HttpEntity<>(getHeaders());
+            ResponseEntity<String> rsp = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+            return process(rsp.getBody());
+        } catch (RestClientException e) {
+            throw new LookupException("Error fetching data from API with NPI: " + code, e);
+        }
     }
 
-    @Override
-    protected String process(String rsp) {
+    private String process(String rsp) {
         if (rsp == null || rsp.isEmpty()) {
             return "{\"error\": \"empty response from API\"}";
         }
@@ -32,7 +45,7 @@ public class NPILookupService extends AbstractLookupService implements LookupSer
     }
 
     @Override
-    protected void check(String code) throws LookupException {
+    public void check(String code) throws LookupException {
         if (code == null || code.isEmpty()) {
             throw new LookupException("Invalid input - NPI code cannot be null or empty");
         }
@@ -42,17 +55,14 @@ public class NPILookupService extends AbstractLookupService implements LookupSer
     }
 
     @Override
-    public String send(String code, HttpHeaders headers) throws LookupException {
-        try {
-            String url = UriComponentsBuilder.fromHttpUrl(apiUrl)
-                .queryParam("number", code)
-                .toUriString();
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-            ResponseEntity<String> rsp = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+    public HttpHeaders getHeaders() {
+        HttpHeaders hdrs = new HttpHeaders();
+        hdrs.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        return hdrs;
+    }
 
-            return rsp.getBody();
-        } catch (RestClientException e) {
-            throw new LookupException("Error fetching data from API with NPI: " + code, e);
-        }
+    @Override
+    public CodeType getCodeType() {
+        return CodeType.NPI;
     }
 }

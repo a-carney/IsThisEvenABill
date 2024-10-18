@@ -3,26 +3,30 @@ package com.alex.isthisevenabill.services.medcodes;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
 
 @Service
-public class ICDLookupService extends AbstractLookupService implements LookupService {
+public class ICDLookupService implements LookupService {
 
     @Value("${api.icd-url}")
     private String icdUrl;
 
-/*
-    `           WHAT IS AN ICD-10 CODE?
-        ICD, or International Classification of Diseases, are used in medical billing to described a diagnosis with a CPT code
- */
+    private final RestTemplate restTemplate;
 
-    public ICDLookupService(@Value("${api.icd-url}") String apiUrl) {
-        super(apiUrl);
+    public ICDLookupService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 
     @Override
     @Cacheable(value = "icdCodes", key = "#code")
-    public String send(String code, HttpHeaders headers) throws LookupException {
+    public String lookup(String code) throws LookupException {
         check(code);
         try {
             String url = UriComponentsBuilder.fromHttpUrl(icdUrl)
@@ -30,7 +34,7 @@ public class ICDLookupService extends AbstractLookupService implements LookupSer
                     .queryParam("terms", code)
                     .toUriString();
 
-            HttpEntity<String> entity = new HttpEntity<>(headers);
+            HttpEntity<String> entity = new HttpEntity<>(getHeaders());
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
             return process(response.getBody());
@@ -39,17 +43,15 @@ public class ICDLookupService extends AbstractLookupService implements LookupSer
         }
     }
 
-    @Override
-    protected String process(String rsp) {
+    private String process(String rsp) {
         if (rsp == null || rsp.isEmpty()) {
             return "{\"error\": \"empty response from API\"}";
         }
-        // Here you can parse the response as needed
-        return rsp; // Placeholder return
+        return rsp;
     }
 
     @Override
-    protected void check(String code) throws LookupException {
+    public void check(String code) throws LookupException {
         if (code == null || code.isEmpty()) {
             throw new LookupException("Invalid input - ICD code cannot be null or empty");
         }
@@ -63,12 +65,7 @@ public class ICDLookupService extends AbstractLookupService implements LookupSer
     }
 
     @Override
-    public String getDescription() {
-        return "ICD-10 Code Lookup Service";
-    }
-
-    @Override
-    public String getApiEndpoint() {
-        return icdUrl;
+    public CodeType getCodeType() {
+        return CodeType.ICD;
     }
 }
